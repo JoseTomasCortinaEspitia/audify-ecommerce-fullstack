@@ -1,13 +1,18 @@
-//GET    /api/products
+import { Router } from "express";
+import {
+  createProductHandler,
+  deleteProductHandler,
+  getProductByIdHandler,
+  getProductsHandler,
+  updateProductHandler
+} from "../handlers/product.handler.js";
 
+const productRouter = Router();
 
-//GET    /api/products/:id
+productRouter.get("/", getProductsHandler);
+productRouter.get("/:id", getProductByIdHandler);
+productRouter.post("/", createProductHandler);
+productRouter.put("/:id", updateProductHandler);
+productRouter.delete("/:id", deleteProductHandler);
 
-
-//POST   /api/products           admin
-
-
-//PUT    /api/products/:id       admin
-
-
-//DELETE /api/products/:id       admin
+export default productRouter;
