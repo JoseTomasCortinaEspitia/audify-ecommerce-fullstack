@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { upload } from "../middleware/upload.middleware.js";
 import {
   createProductHandler,
   deleteProductHandler,
@@ -11,8 +12,8 @@ const productRouter = Router();
 
 productRouter.get("/", getProductsHandler);
 productRouter.get("/:id", getProductByIdHandler);
-productRouter.post("/", createProductHandler);
-productRouter.put("/:id", updateProductHandler);
+productRouter.post("/", upload.single("image"), createProductHandler);
+productRouter.put("/:id", upload.single("image"), updateProductHandler);
 productRouter.delete("/:id", deleteProductHandler);
 
 export default productRouter;
