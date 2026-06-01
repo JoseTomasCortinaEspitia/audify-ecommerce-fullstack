@@ -30,4 +30,27 @@ app.use("/api/categories", categoryRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/orders", orderRouter);
 
+app.use((req, res) => {
+  res.status(404).json({
+    status: 404,
+    message: "Ruta no encontrada"
+  });
+});
+
+app.use((error, req, res, next) => {
+  console.error("App error:", error);
+
+  if (error instanceof SyntaxError && error.status === 400 && "body" in error) {
+    return res.status(400).json({
+      status: 400,
+      message: "El JSON enviado no es valido"
+    });
+  }
+
+  res.status(500).json({
+    status: 500,
+    message: "Error interno del servidor"
+  });
+});
+
 export default app;

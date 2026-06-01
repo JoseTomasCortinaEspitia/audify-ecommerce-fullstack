@@ -10,6 +10,20 @@ const isValidProductBody = ({ name, description, price, stock, categoryId }) => 
   return name && description && price !== undefined && stock !== undefined && categoryId;
 };
 
+const getProductErrorResponse = (error, defaultMessage) => {
+  if (error.code === "P2003") {
+    return {
+      status: 400,
+      message: "La categoria indicada no existe"
+    };
+  }
+
+  return {
+    status: 500,
+    message: defaultMessage
+  };
+};
+
 export const getProductsHandler = async (req, res) => {
   try {
     const products = await getProducts();
@@ -74,10 +88,8 @@ export const createProductHandler = async (req, res) => {
   } catch (error) {
     console.error("Create product error:", error);
 
-    res.status(500).json({
-      status: 500,
-      message: "Error al crear producto"
-    });
+    const response = getProductErrorResponse(error, "Error al crear producto");
+    res.status(response.status).json(response);
   }
 };
 
@@ -100,10 +112,8 @@ export const updateProductHandler = async (req, res) => {
   } catch (error) {
     console.error("Update product error:", error);
 
-    res.status(500).json({
-      status: 500,
-      message: "Error al actualizar producto"
-    });
+    const response = getProductErrorResponse(error, "Error al actualizar producto");
+    res.status(response.status).json(response);
   }
 };
 
