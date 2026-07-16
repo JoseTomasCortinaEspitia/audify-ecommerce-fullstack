@@ -20,7 +20,7 @@ app.use(express.json());
 
 app.get("/", (req, res) => {
   res.json({
-    message: "Petify E-commerce API is running"
+    message: "Audify E-commerce API is running"
   });
 });
 
