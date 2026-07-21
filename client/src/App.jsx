@@ -94,9 +94,108 @@ function ProductCard ({ product }) {
         )}
       </div>
       <div className="product-content">
+        <p className="category">{product.category?.name || 'Audio'}</p>
+        <h3>{product.name}</h3>
+        <p>{product.description}</p>
+        <div className="product-footer">
+          <strong>${Number(product.price).toFixed(2)}</strong>
+          <span>{product.stock} en stock</span>
+        </div>
       </div>
     </article>
   )
 }  
+
+function ProductsGrid({ reloadedKey = 0}){
+  const [products, setProducts] = useState([])
+  const [status, setStatus] = useState('Cargando productos...')
+
+  useEffect(() => {
+    const getProducts = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/products`)
+        setProducts(res.data?.products || [])
+        setStatus('')
+      } catch (error) {
+        setStatus(error.response?.data?.message || 'No se pudieron cargar los productos')
+      }
+    }
+
+    getProducts()
+  }, [reloadedKey])
+  
+  if (status) return <p className="status-message">{status}</p>
+  
+  if (!products.length) {
+    return <p className="status-message">No se encontraron productos</p>
+  }
+
+  return (
+    <section className="products-grid">
+      {products.map((product) => (
+        <ProductCard key={product.id} product={product} />
+      ))}
+    </section>
+  )
+}
+
+function Home({ user, onLogout}){
+  return (
+    <main>
+      <header className="store-hero">
+        <nav className='topbar'>
+          <a className="brand" href="/">Audify</a>
+          <div>
+            <span>{user?.email}</span>
+            <button type="button" className="link-button" onClick={onLogout}>Salir</button>
+          </div>
+        </nav>
+        <section className="hero-content">
+          <p className='eyebrow'>Marketplace de audio profesional</p>
+          <h1>Encuentra lo que necesitas</h1>
+          <p>
+            Este home funciona como la entrada de www.audify.com: después del login,
+            consulta la API y muestra los productos guardados en la base de datos.
+          </p>    
+        </section>
+      </header>
+      <ProductsGrid />
+    </main>
+  )
+}
+
+function AdminPanel({ user, onLogout }) {
+  const [form, setForm] = useState(emptyProductForm)
+  const [image, setImage] = useState(null)
+  const [categories, setCategories] = useState([])
+  const [message, setMessage] = useState('')
+  const [reloadedKey, setReloadedKey] = useState(0)
+
+  const categoryOptions = useMemo(() => categories.map((category) => (
+    <option key={category.id} value={category.id}>{category.name}</option>
+  )), [categories]
+)
+  return(
+  <main>
+
+  </main>  
+  )
+}
+
+function App() {
+  const [user, setUser] = useState(null)
+  const path = window.location.pathname
+  const isAdminRoute = path.startsWith('/admin')
+
+  if (!user) {
+    return <Login mode={isAdminRoute ? 'admin' : 'customer'} onLogin={setUser} />
+  }
+
+  if (isAdminRoute) {
+    return <AdminPanel user={user} onLogout={() => setUser(null)} />
+  }
+
+  return <Home user={user} onLogout={() => setUser(null)} />
+}
 
 export default App
