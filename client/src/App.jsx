@@ -173,11 +173,83 @@ function AdminPanel({ user, onLogout }) {
 
   const categoryOptions = useMemo(() => categories.map((category) => (
     <option key={category.id} value={category.id}>{category.name}</option>
-  )), [categories]
-)
-  return(
-  <main>
+  )), [categories])
 
+  useEffect(() => {
+    const getCategories = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/categories`)
+        setCategories(res.data?.categories || [])
+      } catch (error) {
+        setCategories([])
+      }
+    }
+
+    getCategories()
+  }, [])
+
+  const handleChange = (e) => {
+    setForm((current) => ({ ...current, [e.target.name]: e.target.value}))
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setCategories('Creando producto...')
+    
+    const data = new FormData()
+    Object.entries(form).forEach(([key, value]) =>  data.append(key, value))
+    if (image) data.append('image', image)
+
+    try {
+      const res = await axios.post(`${API_URL}/products`, data)
+      setMessage(res.data?.message || 'Producto creado correctamente')
+      setForm(emptyProductForm)
+      setImage(null)
+      e.target.reset()
+      setReloadedKey((current) => current + 1)
+    } catch (error) {
+      setMessage(error.response?.data?.message || 'Error al crear producto')
+    }
+  }
+
+  return(
+  <main className="admin-layout">
+    <nav className="topbar admin-topbar">
+      <a className="brand" href="/">Audify</a>
+      <div>
+        <span>{user?.email}</span>
+        <button type="button" className="link-button" onClick={onLogout}>Salir</button>
+      </div>
+    </nav>
+
+    <section className="admin-grid">
+      <article className="anel-card">
+        <p className="eyebrow">Crear producto</p>
+        <h1>Alta desde frontend</h1>
+        <form className="form" onSubmit={handleSubmit}>
+          <label>Nombre<input name='name' value={form.name} onChange={handleChange} required/></label>
+          <label>Precio<input name='price' tyepe="number" step="0.01" min="0" value={form.price} onChange={handleChange} required/></label>
+          <label>Stock<input name='stock' type="number" min="0" value={form.stock} onChange={handleChange} required/></label>
+          <label> 
+            Categoría
+            <select name='categoryId' value={form.categoryId} onChange={handleChange} required>
+              <option value="">Selecciona una categoría</option>
+              {categoryOptions}
+            </select>
+          </label>
+          <label>Descripción<textarea name='description' value={form.description} onChange={handleChange} required /></label>
+          <label>Imagen<input type="file" accept="image/*" onChange={(e) => setImage(e.target.files[0])} /></label>
+          <button type="submit">Crear producto</button>
+        </form>
+        {message && <p className="status-message">{message}</p>}
+      </article>
+
+      <article className="panel-card preview-panel">
+        <p className="eyebrow">Vista Pública</p>
+        <h1>Productos publicados</h1>
+        <ProductsGrid reloadedKey={reloadedKey} />
+      </article>
+    </section>
   </main>  
   )
 }
