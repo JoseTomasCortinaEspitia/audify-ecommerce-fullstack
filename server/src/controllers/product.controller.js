@@ -23,10 +23,25 @@ export const getProductById = (id) => {
 };
 
 export const createProduct = async (productData, file) => {
-  const { name, description, price, stock, categoryId } = productData;
+  const { name, description, price, stock, categoryId, imageUrl: providedImageUrl, imagePublicId: providedImagePublicId } = productData;
 
-  let imageUrl = null;
-  let imagePublicId = null;
+  const existingProduct = await prisma.product.findFirst({
+    where: {
+      name: {
+        equals: name.trim(),
+        mode: "insensitive"
+      }
+    }
+  });
+
+  if (existingProduct) {
+    const error = new Error("Ya existe un producto con ese nombre");
+    error.code = "P2002";
+    throw error;
+  }
+
+  let imageUrl = providedImageUrl || null;
+  let imagePublicId = providedImagePublicId || null;
 
   if (file) {
     const uploadResult = await uploadToCloudinary(file.buffer);
@@ -37,7 +52,7 @@ export const createProduct = async (productData, file) => {
 
   return prisma.product.create({
     data: {
-      name,
+      name: name.trim(),
       description,
       price: Number(price),
       stock: Number(stock),

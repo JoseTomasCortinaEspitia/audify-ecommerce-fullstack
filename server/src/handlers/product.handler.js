@@ -11,6 +11,13 @@ const isValidProductBody = ({ name, description, price, stock, categoryId }) => 
 };
 
 const getProductErrorResponse = (error, defaultMessage) => {
+  if (error.code === "P2002") {
+    return {
+      status: 409,
+      message: "Ya existe un producto con ese nombre"
+    };
+  }
+  
   if (error.code === "P2003") {
     return {
       status: 400,
