@@ -25,15 +25,19 @@ enum OrderStatus {
 }
 
 model User {
-  id        String   @id @default(uuid())
+  id        String     @id @default(uuid())
   name      String
-  email     String   @unique
-  password  String
-  role      Role     @default(CUSTOMER)
+  email     String     @unique
+  password  String?
+  googleId  String?    @unique
+  avatarUrl String?
+  role      Role       @default(CUSTOMER)
   orders    Order[]
   cartItems CartItem[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([name])
 }
 
 model Category {
@@ -44,29 +48,29 @@ model Category {
 }
 
 model Product {
-  id          String      @id @default(uuid())
-  name        String
-  description String
-  price       Float
-  stock       Int
-  imageUrl    String?
+  id            String      @id @default(uuid())
+  name          String
+  description   String
+  price         Float
+  stock         Int
+  imageUrl      String?
   imagePublicId String?
-  categoryId  String
-  category    Category    @relation(fields: [categoryId], references: [id])
-  cartItems   CartItem[]
-  orderItems  OrderItem[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  categoryId    String
+  category      Category    @relation(fields: [categoryId], references: [id])
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 }
 
 model CartItem {
-  id        String   @id @default(uuid())
+  id        String @id @default(uuid())
   userId    String
   productId String
-  quantity  Int     @default(1)
+  quantity  Int    @default(1)
 
-  user      User    @relation(fields: [userId], references: [id])
-  product   Product @relation(fields: [productId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
 
   @@unique([userId, productId])
 }
@@ -82,12 +86,12 @@ model Order {
 }
 
 model OrderItem {
-  id        String  @id @default(uuid())
+  id        String @id @default(uuid())
   orderId   String
   productId String
   quantity  Int
   price     Float
 
-  order     Order   @relation(fields: [orderId], references: [id])
-  product   Product @relation(fields: [productId], references: [id])
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
 }
