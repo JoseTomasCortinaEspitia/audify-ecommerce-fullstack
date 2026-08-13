@@ -13,13 +13,7 @@ const emptyProductForm = {
   categoryId: '',
 }
 
-const readSession = () => {
-  try {
-    return JSON.parse(localStorage.getItem('audify-session'))
-  } catch {
-    return null
-  }
-}
+const SESSION_INACTIVITY_MS = 15 * 60 * 1000
 
 function GoogleButton({ onSuccess, onError }) {
   const buttonRef = useRef(null)
@@ -303,17 +297,39 @@ function AdminPanel({ session, onLogout }) {
 }
 
 function App() {
-  const [session, setSession] = useState(readSession)
+  const [session, setSession] = useState(null)
   const isAdminRoute = window.location.pathname.startsWith('/admin')
+
+  useEffect(() => {
+    localStorage.removeItem('audify-session')
+  }, [])
+
+  useEffect(() => {
+    if (!session) return undefined
+
+    let inactivityTimer
+    const expireSession = () => setSession(null)
+    const resetInactivityTimer = () => {
+      window.clearTimeout(inactivityTimer)
+      inactivityTimer = window.setTimeout(expireSession, SESSION_INACTIVITY_MS)
+    }
+    const activityEvents = ['click', 'keydown', 'scroll', 'touchstart']
+
+    activityEvents.forEach((eventName) => window.addEventListener(eventName, resetInactivityTimer))
+    resetInactivityTimer()
+
+    return () => {
+      window.clearTimeout(inactivityTimer)
+      activityEvents.forEach((eventName) => window.removeEventListener(eventName, resetInactivityTimer))
+    }
+  }, [session])
 
   const saveSession = (data) => {
     const nextSession = { token: data.token, user: data.user }
-    localStorage.setItem('audify-session', JSON.stringify(nextSession))
     setSession(nextSession)
   }
 
   const logout = () => {
-    localStorage.removeItem('audify-session')
     setSession(null)
   }
 
