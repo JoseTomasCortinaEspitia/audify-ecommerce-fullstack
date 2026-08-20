@@ -1,9 +1,10 @@
 import prisma from "../config/prisma.js";
 import cloudinary from "../config/cloudinary.js";
 import { uploadToCloudinary } from "../utils/uploadToCloudinary.js";
+import { getCopToUsdRate, translateToEnglish } from "./localization.controller.js";
 
-export const getProducts = () => {
-  return prisma.product.findMany({
+export const getProducts = async (language = "es") => {
+  const products = await prisma.product.findMany({
     include: {
       category: true
     },
@@ -11,6 +12,25 @@ export const getProducts = () => {
       createdAt: "desc"
     }
   });
+
+  if (language !== "en") return products;
+
+  const texts = products.flatMap((product) => [product.description, product.category.name]);
+  const [translations, copToUsdRate] = await Promise.all([
+    translateToEnglish(texts),
+    getCopToUsdRate()
+  ]);
+
+  return products.map((product) => ({
+    ...product,
+    description: translations.get(product.description),
+    price: Number((product.price * copToUsdRate).toFixed(2)),
+    currency: "USD",
+    category: {
+      ...product.category,
+      name: translations.get(product.category.name)
+    }
+  }));
 };
 
 export const getProductById = (id) => {
@@ -23,7 +43,15 @@ export const getProductById = (id) => {
 };
 
 export const createProduct = async (productData, file) => {
-  const { name, description, price, stock, categoryId, imageUrl: providedImageUrl, imagePublicId: providedImagePublicId } = productData;
+  const {
+    name,
+    description,
+    price,
+    stock,
+    categoryId,
+    imageUrl: providedImageUrl,
+    imagePublicId: providedImagePublicId
+  } = productData;
 
   const existingProduct = await prisma.product.findFirst({
     where: {

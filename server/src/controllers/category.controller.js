@@ -1,7 +1,8 @@
 import prisma from "../config/prisma.js";
+import { translateToEnglish } from "./localization.controller.js";
 
-export const getCategories = () => {
-  return prisma.category.findMany({
+export const getCategories = async (language = "es") => {
+  const categories = await prisma.category.findMany({
     include: {
       products: true
     },
@@ -9,6 +10,10 @@ export const getCategories = () => {
       createdAt: "desc"
     }
   });
+
+  if (language !== "en") return categories;
+  const translations = await translateToEnglish(categories.map((category) => category.name));
+  return categories.map((category) => ({ ...category, name: translations.get(category.name) }));
 };
 
 export const getCategoryById = (id) => {

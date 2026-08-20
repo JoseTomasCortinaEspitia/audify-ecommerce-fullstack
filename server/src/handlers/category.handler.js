@@ -29,7 +29,7 @@ const getCategoryErrorResponse = (error, defaultMessage) => {
 
 export const getCategoriesHandler = async (req, res) => {
   try {
-    const categories = await getCategories();
+    const categories = await getCategories(req.query.lang);
 
     res.status(200).json({
       status: 200,

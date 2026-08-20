@@ -33,7 +33,7 @@ const getProductErrorResponse = (error, defaultMessage) => {
 
 export const getProductsHandler = async (req, res) => {
   try {
-    const products = await getProducts();
+    const products = await getProducts(req.query.lang);
 
     res.status(200).json({
       status: 200,
