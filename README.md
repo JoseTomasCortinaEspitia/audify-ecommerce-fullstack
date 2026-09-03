@@ -60,25 +60,66 @@ Backend API: Coming soon
 
 ---
 
+## Screenshots
+
+### Login
+
+![Audify login screen](docs/images/login.jpg)
+
+### Home
+
+![Audify home and product catalog](docs/images/home.jpg)
+
+### Shopping Cart
+
+![Audify shopping cart](docs/images/shopping-cart.jpg)
+
+### Admin Dashboard
+
+![Audify administration dashboard](docs/images/admin-dashboard.jpg)
+
+---
+
 ## Project Structure
 
 ```txt
 audify-ecommerce-fullstack/
-│
 ├── client/
-│   ├── src/
 │   ├── public/
+│   │   ├── favicon.svg
+│   │   └── icons.svg
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   └── main.jsx
+│   ├── eslint.config.js
+│   ├── index.html
 │   ├── package.json
 │   └── vite.config.js
-│
+├── docs/
+│   └── images/
+│       ├── admin-dashboard.jpg
+│       ├── home.jpg
+│       ├── login.jpg
+│       └── shopping-cart.jpg
 ├── server/
 │   ├── prisma/
-│   │   ├── schema.prisma
-│   │   └── migrations/
+│   │   ├── migrations/
+│   │   └── schema.prisma
+│   ├── scripts/
+│   │   └── createAdmin.js
 │   ├── src/
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── handlers/
+│   │   ├── middleware/
+│   │   ├── routes/
+│   │   ├── utils/
 │   │   ├── app.js
 │   │   └── server.js
 │   ├── package.json
-│   └── .env.example
-│
+│   └── prisma.config.ts
 └── README.md
+```
