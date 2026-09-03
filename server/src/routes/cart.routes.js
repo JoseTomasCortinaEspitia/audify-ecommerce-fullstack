@@ -6,8 +6,10 @@ import {
   removeCartItemHandler,
   updateCartItemHandler
 } from "../handlers/cart.handler.js";
+import { requireAuth } from "../middleware/auth.middleware.js";
 
 const cartRouter = Router();
+cartRouter.use(requireAuth);
 
 cartRouter.get("/", getCartHandler);
 cartRouter.post("/items", addCartItemHandler);

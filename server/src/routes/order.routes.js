@@ -6,8 +6,10 @@ import {
   getOrdersHandler,
   updateOrderStatusHandler
 } from "../handlers/order.handler.js";
+import { requireAuth } from "../middleware/auth.middleware.js";
 
 const orderRouter = Router();
+orderRouter.use(requireAuth);
 
 orderRouter.get("/", getOrdersHandler);
 orderRouter.get("/:id", getOrderByIdHandler);
